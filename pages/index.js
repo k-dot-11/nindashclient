@@ -579,7 +579,7 @@ export default function Home() {
 	const postData = (e, q) => {
 		if (searchInput.length > 0) {
 			axios
-				.post('https://lit-reef-57832.herokuapp.com/', {
+				.post('http://localhost:3000/', {
 					name: e
 				})
 				.then((res) => {
