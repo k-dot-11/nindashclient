@@ -579,7 +579,7 @@ export default function Home() {
 	const postData = (e, q) => {
 		if (searchInput.length > 0) {
 			axios
-				.post('http://localhost:3000/', {
+				.post('https://dry-ocean-01021.herokuapp.com/', {
 					name: e
 				})
 				.then((res) => {
