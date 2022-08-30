@@ -5,7 +5,7 @@ function MyApp({ Component, pageProps }) {
 		<ChakraProvider>
 			<Flex h="50" bg="teal" align="center" justify='center'>
 				<Text color="white" fontWeight="bold">
-					Nutrtitional Calculator
+					Nutritional Calculator
 				</Text>
 			</Flex>
 			<Component {...pageProps} />
