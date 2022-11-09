@@ -8,6 +8,7 @@ import RecipeCard from "../components/RecipeCard";
 
 const recipes = () => {
     const [recipes, setRecipes] = useState([]);
+    const [ids, setIDs] = useState([]);
     const [loading, setLoading] = useState(true);
     const db = getFirestore(app);
 
@@ -15,9 +16,12 @@ const recipes = () => {
         async function getData() {
             const querySnapshot = await getDocs(collection(db, "recipes"));
             let newRecipes = [];
+            let newIds = [];
             querySnapshot.forEach((doc) => {
                 newRecipes.push(doc.data());
+                newIds.push(doc.id);
             });
+            setIDs(newIds);
             setRecipes(newRecipes);
             setLoading(false);
         }
@@ -31,8 +35,14 @@ const recipes = () => {
             </Head>
             <Flex flexDirection="column">
                 {loading && <Spinner />}
-                {recipes.map((r) => {
-                    return <RecipeCard recipe={r} />;
+                {recipes.map((r, i) => {
+                    return (
+                        <RecipeCard
+                            recipe={r}
+                            key={ids[i]}
+                            id={ids[i]}
+                        />
+                    );
                 })}
             </Flex>
         </Flex>

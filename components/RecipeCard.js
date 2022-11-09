@@ -12,15 +12,26 @@ import {
     ModalCloseButton,
 } from "@chakra-ui/react";
 import AdditionalDetails from "./AdditionalDetails";
+import Router from "next/router";
 
-const RecipeCard = ({ recipe }) => {
+const RecipeCard = ({ recipe , id}) => {
     let { recipeName, quantities, items, totalItem } = recipe;
 
     const [detailsOpen, setDetailsOpen] = useState(false);
 
     const totalWeight = quantities.reduce((p, c) => p + c, 0);
+
     const roundNumber = (num) => {
         return Math.round((num + Number.EPSILON) * 100) / 100;
+    };
+
+    const handleCloneClick = () => {
+        Router.push({
+            pathname: "/",
+            query: {
+                currRecipe : id
+            },
+        });
     };
 
     return (
@@ -104,7 +115,7 @@ const RecipeCard = ({ recipe }) => {
                     m={3}
                     colorScheme="yellow"
                     variant="solid"
-                    onClick={() => console.log(totalItem)}
+                    onClick={handleCloneClick}
                 >
                     Clone Recipe
                 </Button>

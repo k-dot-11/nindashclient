@@ -9,7 +9,7 @@ import {
 } from "@chakra-ui/react";
 import axios from "axios";
 import { FormControl } from "@chakra-ui/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
     Table,
     Thead,
@@ -42,28 +42,64 @@ import {
 } from "@chakra-ui/react";
 import AdditionalDetails from "../components/AdditionalDetails";
 import { foods, columns } from "../data/foods";
-import { getFirestore } from "firebase/firestore";
+import { doc, getDoc, getFirestore } from "firebase/firestore";
 import { app } from "../config/firebase";
 import { collection, addDoc } from "firebase/firestore";
+import { useRouter } from "next/router";
 
 export default function Home() {
     const { isOpen, onOpen, onClose } = useDisclosure();
     const [detailsOpen, setDetailsOpen] = useState(false);
     const [saveRecipeOpen, setSaveRecipeOpen] = useState(false);
+    const [loading, setLoading] = useState(false);
+    const [pageLoading, setPageLoading] = useState(true);
+
     const [detailsItem, setDetailsItem] = useState("");
     const [searchInput, setSearchInput] = useState("");
     const [recipeName, setRecipeName] = useState("");
+    const [itemSelected, setItemSelected] = useState("");
+
+    const [totalWeight, setTotalWeight] = useState(0);
+    const [quantity, setQuantity] = useState(100);
+
     const [items, setItems] = useState([]);
     const [quantities, setQuantities] = useState([]);
-    const [totalWeight, setTotalWeight] = useState(0);
-    const [itemSelected, setItemSelected] = useState("");
-    const [quantity, setQuantity] = useState(100);
+
     const [ids, setIds] = useState([]);
     const [excelData, setExcelData] = useState([]);
-    const [totalItem, setTotalItem] = useState(null);
-    const [loading, setLoading] = useState(false);
 
+    const [totalItem, setTotalItem] = useState(null);
+
+    const router = useRouter();
     const db = getFirestore(app);
+
+    useEffect(() => {
+        if (!router.query.currRecipe) {
+            setPageLoading(false);
+        } else getDataFromQuery();
+    }, []);
+
+    const getDataFromQuery = async () => {
+        const snap = await getDoc(doc(db, "recipes", router.query.currRecipe));
+        if (snap.exists()) {
+            let data = snap.data();
+            setItems(data.items);
+            setQuantities(data.quantities);
+            setTotalItem(data.totalItem);
+
+            let newIds = [];
+            data.items.forEach((item) => {
+                newIds.push(item.code);
+            });
+            setIds(newIds);
+            setTotalWeight(
+                data.quantities.reduce(function (x, y) {
+                    return x + y;
+                }, 0)
+            );
+            setPageLoading(false);
+        } else console.log("No such document");
+    };
 
     const handleInputChange = (e) => {
         setSearchInput(e.target.value);
@@ -228,7 +264,7 @@ export default function Home() {
 
     const postData = (e, q) => {
         setLoading(true);
-        if(e == "Water (Only weight added)"){
+        if (e == "Water (Only weight added)") {
             setTotalWeight(totalWeight + q);
             setLoading(false);
             return;
@@ -291,7 +327,11 @@ export default function Home() {
         setQuantities(newQuantities);
     };
 
-    return (
+    return pageLoading ? (
+        <Flex p={5} align={"center"} justify="center">
+            <Spinner />
+        </Flex>
+    ) : (
         <Flex direction="column" align="center" m={2}>
             <TableContainer>
                 <Table variant="striped">
@@ -545,7 +585,7 @@ export default function Home() {
                         >
                             Show more data
                         </Button>
-                        
+
                         <Button
                             variant="outline"
                             colorScheme={"teal"}
