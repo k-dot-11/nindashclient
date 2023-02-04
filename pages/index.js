@@ -4,8 +4,8 @@ import {
     IconButton,
     Input,
     Spinner,
-    Text,
     useDisclosure,
+    useToast,
 } from "@chakra-ui/react";
 import axios from "axios";
 import { FormControl } from "@chakra-ui/react";
@@ -24,7 +24,6 @@ import {
 import { ListItem, ListIcon, UnorderedList } from "@chakra-ui/react";
 import {
     FaDownload,
-    FaEdit,
     FaInfoCircle,
     FaPizzaSlice,
     FaTrashAlt,
@@ -46,6 +45,7 @@ import { doc, getDoc, getFirestore } from "firebase/firestore";
 import { app } from "../config/firebase";
 import { collection, addDoc } from "firebase/firestore";
 import { useRouter } from "next/router";
+import { getAuth } from "firebase/auth";
 
 export default function Home() {
     const { isOpen, onOpen, onClose } = useDisclosure();
@@ -71,8 +71,10 @@ export default function Home() {
     const [totalItem, setTotalItem] = useState(null);
 
     const router = useRouter();
+    const toast = useToast();
     const db = getFirestore(app);
 
+    const auth = getAuth();
     useEffect(() => {
         if (!router.query.currRecipe) {
             setPageLoading(false);
@@ -223,10 +225,26 @@ export default function Home() {
                 items,
                 quantities,
                 totalItem,
+                email: auth.currentUser.email,
+                username: auth.currentUser.displayName,
             });
             console.log("Document written with ID: ", docRef.id);
+            toast({
+                title: "Recipe saved !",
+                description: "Recipe ID : " + docRef.id,
+                status: "success",
+                duration: 5000,
+                isClosable: true,
+            });
         } catch (e) {
             console.error("Error adding document: ", e);
+            toast({
+                title: "Error adding recipe",
+                description: e,
+                status: "error",
+                duration: 5000,
+                isClosable: true,
+            });
         } finally {
             setSaveRecipeOpen(false);
         }
@@ -264,14 +282,9 @@ export default function Home() {
 
     const postData = (e, q) => {
         setLoading(true);
-        if (e == "Water (Only weight added)") {
-            setTotalWeight(totalWeight + q);
-            setLoading(false);
-            return;
-        }
         if (searchInput.length > 0) {
             axios
-                .post("https://dry-ocean-01021.herokuapp.com/", {
+                .post("https://nin-mid.onrender.com", {
                     name: e,
                 })
                 .then((res) => {
@@ -325,6 +338,16 @@ export default function Home() {
         setIds(newIds);
         setItems(newItems);
         setQuantities(newQuantities);
+    };
+
+    const displayToast = () => {
+        toast({
+            title: "User not logged in",
+            description: "You need to sign in to save your recipe.",
+            status: "info",
+            duration: 5000,
+            isClosable: true,
+        });
     };
 
     return pageLoading ? (
@@ -497,7 +520,7 @@ export default function Home() {
                     </Tfoot>
                     <TableCaption>
                         All data is collected from the official IFCT manual
-                        published in 2017.
+                        published in 2017. <br/>Data for oils is collected from USDA Food Central.
                     </TableCaption>
                 </Table>
             </TableContainer>
@@ -609,7 +632,11 @@ export default function Home() {
                     <Button
                         variant="solid"
                         colorScheme={"yellow"}
-                        onClick={() => setSaveRecipeOpen(true)}
+                        onClick={
+                            auth.currentUser
+                                ? () => setSaveRecipeOpen(true)
+                                : displayToast
+                        }
                         mt={5}
                     >
                         Save recipe

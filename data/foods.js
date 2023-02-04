@@ -11,7 +11,6 @@ export const columns = [
 ];
 
 export const foods = [
-    "Water (Only weight added)",
     "Milk, whole, Buffalo",
     "Milk, whole, Cow",
     "Paneer",
@@ -533,9 +532,15 @@ export const foods = [
     "Palm oil ",
     "Rice bran oil ",
     "Safflower oil ",
-    "Safflower oil (blended) ",
     "Soyabean oil ",
     "Sunflower oil ",
     "Ghee ",
     "Vanaspati ",
+    "Water (Only Weight Added)"
 ];
+
+export const allergenMilk = [
+    "Milk, whole, Buffalo",
+    "Milk, whole, Cow",
+    "Milk fish",
+]

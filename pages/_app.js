@@ -1,6 +1,6 @@
 import { ChakraProvider, Flex, Link as CLink, Button } from "@chakra-ui/react";
 import Link from "next/link";
-import { useState } from "react";
+import React, { useState } from "react";
 import {
     getAuth,
     signInWithPopup,
@@ -8,6 +8,7 @@ import {
     onAuthStateChanged,
     signOut,
 } from "firebase/auth";
+import Head from "next/head";
 
 function MyApp({ Component, pageProps }) {
     const provider = new GoogleAuthProvider();
@@ -51,54 +52,69 @@ function MyApp({ Component, pageProps }) {
 
     return (
         <ChakraProvider>
+            <Head>
+                <title>NIN Dashboard</title>
+            </Head>
             <Flex
                 px={8}
                 h="50"
                 bg="teal"
                 align="center"
-                justify="space-between"
+                justify={[
+                    "space-between",
+                    "space-between",
+                    "space-around",
+                    "space-around",
+                ]}
             >
-                <Link href="/">
-                    <CLink
-                        style={{ textDecoration: "none" }}
-                        color="white"
-                        fontWeight="bold"
-                    >
-                        Nutritional Calculator
-                    </CLink>
-                </Link>
-                <Flex align={"center"}>
+                <Flex>
                     <Link href="/">
                         <CLink
-                            mr={4}
                             style={{ textDecoration: "none" }}
                             color="white"
                             fontWeight="bold"
                         >
-                            Home
+                            Nutritional Calculator
                         </CLink>
                     </Link>
-                    <Link href="/recipes">
-                        <CLink
-                            ml={4}
-                            style={{ textDecoration: "none" }}
-                            color="white"
-                            fontWeight="bold"
-                        >
-                            Recipes
-                        </CLink>
-                    </Link>
-                    <Button
-                        ml={3}
-                        variant="text"
-                        color="white"
-                        onClick={isSignedIn ? handleSignOut : handleSignIn}
+                </Flex>
+                <Flex>
+                    <Flex
+                        align={"center"}
+                        display={["none", "none", "block", "block"]}
                     >
-                        {isSignedIn ? "Sign out" : "Sign in"}
-                    </Button>
+                        <Link href="/">
+                            <CLink
+                                mr={4}
+                                style={{ textDecoration: "none" }}
+                                color="white"
+                                fontWeight="bold"
+                            >
+                                Home
+                            </CLink>
+                        </Link>
+                        <Link href="/recipes">
+                            <CLink
+                                ml={4}
+                                style={{ textDecoration: "none" }}
+                                color="white"
+                                fontWeight="bold"
+                            >
+                                Recipes
+                            </CLink>
+                        </Link>
+                        <Button
+                            ml={3}
+                            variant="text"
+                            color="white"
+                            onClick={isSignedIn ? handleSignOut : handleSignIn}
+                        >
+                            {isSignedIn ? "Sign out" : "Sign in"}
+                        </Button>
+                    </Flex>
                 </Flex>
             </Flex>
-            <Component {...pageProps} />
+            <Component {...pageProps} auth={auth} />
         </ChakraProvider>
     );
 }

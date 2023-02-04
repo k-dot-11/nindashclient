@@ -1,4 +1,4 @@
-import { Button, Flex, Spinner, Text } from "@chakra-ui/react";
+import { Flex, Spinner, Text } from "@chakra-ui/react";
 import React, { useEffect, useState } from "react";
 import { getFirestore } from "firebase/firestore";
 import { app } from "../config/firebase";
@@ -6,7 +6,7 @@ import { collection, getDocs } from "firebase/firestore";
 import Head from "next/head";
 import RecipeCard from "../components/RecipeCard";
 
-const recipes = () => {
+const recipes = ({ auth }) => {
     const [recipes, setRecipes] = useState([]);
     const [ids, setIDs] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -24,6 +24,7 @@ const recipes = () => {
             setIDs(newIds);
             setRecipes(newRecipes);
             setLoading(false);
+            console.log(auth);
         }
         if (recipes.length == 0) getData();
     }, [recipes]);
@@ -41,6 +42,8 @@ const recipes = () => {
                             recipe={r}
                             key={ids[i]}
                             id={ids[i]}
+                            auth={auth}
+                            db={db}
                         />
                     );
                 })}
